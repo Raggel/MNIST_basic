@@ -28,7 +28,6 @@ namespace MNIST_basic
         {
             nNet = new NeuronNetwork(784, 300);
             nNet.addLayer(10, layerType.OutputLayer);
-            new NeuronNetRepository(Application.StartupPath + @"\Network1.dat");
             NetRep.loadNet(nNet);
         }
 
@@ -68,7 +67,7 @@ namespace MNIST_basic
             int iRnd = new int();
             iRnd = rnd.Next(0, 60000);
             TrainBaseMemStream.loadPattern(iRnd, p);
-            nNet.getAnswer(p.data);
+            
             double[] result = nNet.getAnswer(p.data);
             label1.Text = result[0].ToString("N8");
             label2.Text = result[1].ToString("N8");
@@ -122,9 +121,57 @@ namespace MNIST_basic
                     target[j] = 0;
                 target[p.val] = 1;
                 nNet.trainSingle(p.data, target);
-                this.Text = i.ToString();
-                Application.DoEvents();
+                if (i % 50 == 0)
+                {
+                    this.Text = i.ToString();
+                    Application.DoEvents();
+                }
             }
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            int count = 0;
+            Pattern p = new Pattern();
+            double[] result = new double[10];
+            int i;
+
+            for ( i = 0; i < 10000; i++)
+            {
+                
+                TestBaseMemStream.loadPattern( i, p);
+                result = nNet.getAnswer(p.data);
+
+                double maxr = result[0];
+                int maxi = 0;
+                for( int j = 1; j < 10; j++)
+                {
+                    if( maxr < result[j])
+                    {
+                        maxr = result[j];
+                        maxi = j;
+                    }
+                }
+
+                if (maxi == p.val)
+                    count++;
+                else
+                    textBox1.Add( $"Ошибка img {i} метка {p.val} опознана как {maxi}");
+
+                if (i % 50 == 0)
+                    this.Text = i.ToString();
+            }
+
+            this.Text = i.ToString();
+            textBox1.Add($"Эффективность {(((double)count / i) * 100):N2}%");
+        }
+    }
+
+    public static class WinFormsExtensions
+    {
+        public static void Add(this TextBox source, string value)
+        {
+            source.AppendText( value + "\r\n");
         }
     }
 }
