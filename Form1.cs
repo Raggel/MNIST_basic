@@ -26,38 +26,11 @@ namespace MNIST_basic
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            nNet = new NeuronNetwork(784, 300);
+            nNet = new NeuronNetwork(784, 200, 1);
+            nNet.addLayer(200, layerType.HiddenLayer);
+            nNet.addLayer(200, layerType.HiddenLayer);
             nNet.addLayer(10, layerType.OutputLayer);
             NetRep.loadNet(nNet);
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            Pattern p = new Pattern();
-            TrainBaseMemStream.loadPattern(2, p);
-            double[] target = new double[10];
-            for (int i = 0; i < 10; i++)
-                target[i] = 0;
-            target[p.val] = 1;
-            nNet.trainSingle(p.data, target);
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            Pattern p = new Pattern();
-            Random rnd = new Random();
-            int iRnd = new int();
-            double[] target = new double[10];
-            for (int i = 0; i < 1200000; i++)
-            {
-                iRnd = rnd.Next(0, 60000);
-                TrainBaseMemStream.loadPattern(iRnd, p);
-                for (int j = 0; j < 10; j++)
-                    target[j] = 0;
-                target[p.val] = 1;
-                nNet.trainSingle(p.data, target);
-                this.Text = i.ToString();
-            }
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -120,10 +93,10 @@ namespace MNIST_basic
                 for (int j = 0; j < 10; j++)
                     target[j] = 0;
                 target[p.val] = 1;
-                nNet.trainSingle(p.data, target);
+                nNet.train(p.data, target);
                 if (i % 50 == 0)
                 {
-                    this.Text = i.ToString();
+                    this.Text = nNet.trainCount.ToString() + "/" + nNet.eta.ToString() + "/" + i.ToString();
                     Application.DoEvents();
                 }
             }
